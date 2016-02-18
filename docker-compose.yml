@@ -1,0 +1,62 @@
+redis:
+  image: redis:latest
+
+
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports:
+    - "2181"
+
+
+kafka:
+  image: wurstmeister/kafka
+  ports:
+    - "9092"
+  links:
+    - zookeeper:zk
+  environment:
+    HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+
+postgres:
+  image: postgres:latest
+  volumes:
+    - ./postgres-data:/var/lib/postgresql/data
+  environment:
+    PGDATA: "/var/lib/postgresql/data/pgdata"
+    POSTGRES_DB: "craigslist"
+    POSTGRES_PASSWORD: "postgres"
+
+
+grafana:
+  image: kamon/grafana_graphite
+  ports:
+    - "8090:80"
+
+
+crawler:
+  extends:
+    file: base-compose.yml
+    service: python
+  command: manage crawl
+  links:
+    - redis
+    - kafka
+    - grafana
+
+
+dataview:
+  extends:
+    file: base-compose.yml
+    service: python
+  command: bash -c "manage dataview runserver 0.0.0.0:8080 & manage dataview dbimport"
+  ports:
+    - "8080:8080"
+  links:
+    - kafka
+    - postgres
+    - grafana
+  environment:
+    DJANGO_SETTINGS_MODULE: dataview.settings

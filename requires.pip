@@ -1,0 +1,20 @@
+# crawler
+lxml==3.5.0
+msgpack-python==0.4.7
+
+hiredis==0.2.0
+aioredis==0.2.3
+aiohttp==0.20.2
+
+git+https://github.com/dpkp/kafka-python.git#egg=kafka-python
+https://bitbucket.org/estin/pomp/get/default.zip#egg=pomp
+
+# data view
+psycopg2==2.6.1
+Django==1.9.2
+
+# metrics
+aiomeasures==0.5.14
+
+# dev
+pytest

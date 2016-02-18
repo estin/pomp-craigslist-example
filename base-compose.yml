@@ -1,0 +1,12 @@
+python:
+  image: python:latest
+  volumes:
+    - .:/root
+  working_dir: /root
+  environment:
+    PATH: /bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/root/bin
+    PYTHONPATH: /root
+    PYTHONUSERBASE: /root
+  log_opt:
+    max-size: "1m"
+    max-file: "1"
