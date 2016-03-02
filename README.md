@@ -16,6 +16,7 @@ Crawler instance uses:
 - [aiohttp](http://aiohttp.readthedocs.org/en/stable/) for async fetch html pages from craigslist.org
 - [lxml](http://lxml.de/) for parsing content
 
+[Screencast](https://drive.google.com/file/d/0BzRf6g_VWuIjZDUxMGc1Q1ZScFk/view?usp=sharing) without audio.
 
 ## Notice
 
@@ -110,7 +111,7 @@ Start another one crawling session:
 ## Project structure
 
 - entry point craigslist/manage.py
-- `craigslist` crawler, downloader, pipelines, middlewares and utils 
+- `craigslist` crawler, downloader, pipelines, middlewares and utils
 - `dataview` django app
 - `dashboard.json` kamon dashboard
 - `tests` unit tests for `craigslist`
@@ -170,11 +171,11 @@ $ tree -I "*.pyc|__pycache__"
 
 ## TODO
 
-- draw architecture diagram
-- use asyncio kafka implementation
-- fix kafka node not ready error on startup
-- use native kafka consumer poll when doing bulk import data to postgres
-- gather metrics of queue size only by one crawler instance
+- [ ] draw architecture diagram
+- [ ] use asyncio kafka implementation
+- [ ] fix kafka node not ready error on startup
+- [ ] use native kafka consumer poll when doing bulk import data to postgres
+- [ ] gather metrics of queue size only by one crawler instance or separate django management command
 
 ## License
 
