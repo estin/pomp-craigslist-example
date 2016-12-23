@@ -53,7 +53,7 @@ Prepare:
 
 Install crawler and requirements:
 
-    $ docker-compose run --rm crawler python setup.py develop --user
+    $ docker-compose run --rm crawler python3 setup.py develop --user
 
 Create database and admin user for django app:
 
