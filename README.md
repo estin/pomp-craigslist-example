@@ -80,6 +80,10 @@ Check status:
 
     $ docker-compose ps
 
+Check actuality of xpath:
+
+    $ docker-compose run --rm crawler manage check-xpath "https://sfbay.craigslist.org/search/bia?is_paid=all&search_distance_type=mi&query=kid+bike"
+
 Start new crawling session:
 
     $ docker-compose run --rm crawler manage session kidbike "search/bia?is_paid=all&search_distance_type=mi&query=kid+bike"

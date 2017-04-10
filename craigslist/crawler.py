@@ -60,7 +60,7 @@ class CraigsListCrawler(BaseCrawler):
 
     # list parse xpaths
     NEXT_PAGE_XPATH = "(//a[@title='next page']/@href)[1]"
-    ITEMS_XPATH = '//p[@data-pid]'
+    ITEMS_XPATH = '//li[@data-pid]'
 
     # item parse xpaths
     ITEM_TITLE = "(//title/text())[1]"

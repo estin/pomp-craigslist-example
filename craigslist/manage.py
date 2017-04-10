@@ -2,10 +2,12 @@ import sys
 import signal
 import functools
 import urllib.parse
+from collections import defaultdict
 
 import asyncio
 import argparse
 import aioredis
+import aiohttp
 
 from pomp.contrib.asynciotools import AioPomp, AioConcurrentCrawler
 
@@ -17,9 +19,10 @@ from craigslist.queue import RedisQueue
 from craigslist.pipeline import (
     ItemLogPipeline, KafkaPipeline, MetricsPipeline,
 )
-from craigslist.crawler import CraigsListCrawler, ListRequest
-from craigslist.downloader import AiohttpDownloader
+from craigslist.crawler import CraigsListCrawler, ListRequest, ItemRequest
+from craigslist.downloader import AiohttpDownloader, AiohttpResponse
 from craigslist.middleware import LogExceptionMiddleware, MetricsMiddleware
+from craigslist.item import CraigsListItem
 
 
 @asyncio.coroutine
@@ -105,6 +108,63 @@ def clear_queue(loop):
     redis.close()
 
 
+@asyncio.coroutine
+def check_xpath(loop, url):
+    crawler = CraigsListCrawler()
+
+    print('fetch and parse list request: %s...' % url)
+    r = yield from aiohttp.get(url)
+    body = yield from r.text()
+    response = AiohttpResponse(
+        request=ListRequest(
+            url=url,
+            session_id='xpath-check',
+            city_code=urllib.parse.urlparse(url).netloc.split('.')[0],
+        ),
+        body=body,
+    )
+    result_by_type = defaultdict(list)
+    for item in crawler.extract_items(response):
+        result_by_type[type(item)].append(item)
+
+    for _type, items in result_by_type.items():
+        print('%s count: %s' % (_type.__name__, len(items)))
+
+    item_requests = result_by_type[ItemRequest]
+    if not item_requests:
+        print('xpath: OUT OF DATE')
+        return
+
+    request = item_requests[0]
+
+    print('\nfetch and parse item request %s...' % request.url)
+    r = yield from aiohttp.get(request.url)
+    body = yield from r.text()
+    response = AiohttpResponse(
+        request=request,
+        body=body,
+    )
+    result_by_type = defaultdict(list)
+    for item in crawler.extract_items(response):
+        result_by_type[type(item)].append(item)
+
+    for _type, items in result_by_type.items():
+        print('%s count: %s' % (_type.__name__, len(items)))
+
+    item = result_by_type[CraigsListItem][0]
+    if not item:
+        print('xpath: OUT OF DATE')
+        return
+
+    ItemLogPipeline().process(crawler, item)
+
+    if not all((item.title, item.price, item.description)):
+        print('xpath: OUT OF DATE')
+        return
+
+    print('\nxpath: ACTUAL')
+
+
 def main():
 
     import logging.config
@@ -119,6 +179,9 @@ def main():
     session_parser.add_argument('path')
 
     subparsers.add_parser('clearqueue')
+
+    check_xpath_parser = subparsers.add_parser('check-xpath')
+    check_xpath_parser.add_argument('url')
 
     dataview_parser = subparsers.add_parser('dataview')
     dataview_parser.add_argument(
@@ -152,6 +215,8 @@ def main():
             task = start_session(loop, args.session_id, args.path)
         elif args.command == 'clearqueue':
             task = clear_queue(loop)
+        elif args.command == 'check-xpath':
+            task = check_xpath(loop, args.url)
 
         if task:
             try:
