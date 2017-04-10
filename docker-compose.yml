@@ -40,7 +40,7 @@ crawler:
   extends:
     file: base-compose.yml
     service: python
-  command: manage crawl
+  command: ./wait-for-it.sh kafka:9092 -- manage crawl
   links:
     - redis
     - kafka
@@ -51,7 +51,7 @@ dataview:
   extends:
     file: base-compose.yml
     service: python
-  command: bash -c "manage dataview runserver 0.0.0.0:8080 & manage dataview dbimport"
+  command: ./wait-pg-and-kafka.sh bash -c "manage dataview runserver 0.0.0.0:8080 & manage dataview dbimport"
   ports:
     - "8080:8080"
   links:

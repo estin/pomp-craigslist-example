@@ -49,6 +49,8 @@ Prepare:
     $ git clone https://github.com/estin/pomp-craigslist-example.git
     $ cd pomp-craigslist-example
     $ mkdir logs
+    $ chmod +x wait-for-it.sh
+    $ chmod +x wait-pg-and-kafka.sh
     $ docker-compose pull
 
 Install crawler and requirements:
