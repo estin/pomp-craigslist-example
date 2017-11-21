@@ -59,6 +59,7 @@ Install crawler and requirements:
 
 Create database and admin user for django app:
 
+    $ docker-compose up -d postgres
     $ docker-compose run --rm dataview manage dataview migrate
     $ docker-compose run --rm dataview sh -c "echo \"from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'myemail@example.com', 'admin')\" | manage dataview shell"
 

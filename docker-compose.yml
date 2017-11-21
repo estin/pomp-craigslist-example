@@ -21,7 +21,7 @@ kafka:
 
 
 postgres:
-  image: postgres:latest
+  image: postgres:9.5.10
   volumes:
     - ./postgres-data:/var/lib/postgresql/data
   environment:
